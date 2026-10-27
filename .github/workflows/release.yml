@@ -1,0 +1,53 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Work out version
+        id: version
+        shell: pwsh
+        run: |
+          if ($env:GITHUB_REF_TYPE -eq 'tag') { $v = $env:GITHUB_REF_NAME.TrimStart('v') } else { $v = '0.0.0-dev' }
+          "version=$v" >> $env:GITHUB_OUTPUT
+
+      # Single small exe; needs the .NET 8 Desktop Runtime installed.
+      - name: Publish
+        run: >
+          dotnet publish VenToMe.csproj -c Release -r win-x64 --self-contained false
+          -p:PublishSingleFile=true -p:DebugType=None
+          -p:Version=${{ steps.version.outputs.version }}
+          -o out
+
+      - name: Package
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory dist | Out-Null
+          Copy-Item README.md out/
+          Compress-Archive out/* dist/VenToMe-win-x64.zip
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: VenToMe-${{ steps.version.outputs.version }}
+          path: dist/*.zip
+
+      - name: Create GitHub release
+        if: github.ref_type == 'tag'
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$env:GITHUB_REF_NAME" dist/*.zip --title "VenToMe $env:GITHUB_REF_NAME" --generate-notes

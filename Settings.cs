@@ -5,8 +5,8 @@ namespace VenToMe;
 /// <summary>A global hotkey: modifier flags (MOD_*) plus a key. Round-trips through text like "Ctrl+Alt+G".</summary>
 readonly record struct Hotkey(uint Modifiers, Keys Key)
 {
-    public static readonly Hotkey DefaultGather = new(NativeMethods.MOD_CONTROL | NativeMethods.MOD_ALT, Keys.G);
-    public static readonly Hotkey DefaultUndo = new(NativeMethods.MOD_CONTROL | NativeMethods.MOD_ALT, Keys.Z);
+    public static readonly Hotkey DefaultGather = new(NativeMethods.MOD_CONTROL | NativeMethods.MOD_WIN, Keys.G);
+    public static readonly Hotkey DefaultUndo = new(NativeMethods.MOD_CONTROL | NativeMethods.MOD_WIN, Keys.Z);
 
     public override string ToString()
     {
