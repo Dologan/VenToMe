@@ -42,13 +42,3 @@ Requires the .NET 8 SDK on Windows:
 The exe lands in `bin/Release/net8.0-windows/win-x64/publish/`.
 
 To regenerate the icon, run `pwsh tools/make-icon.ps1`.
-
-## Releasing
-
-Pushing a tag that starts with `v` runs `.github/workflows/release.yml`, which builds the zip on GitHub and
-attaches it to a new release with generated notes:
-
-    git tag v1.0.0
-    git push origin v1.0.0
-
-The workflow can also be started manually from the Actions tab; that run only uploads the zip as a build artifact.
